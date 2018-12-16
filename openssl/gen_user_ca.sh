@@ -1,29 +1,45 @@
 #!/bin/bash
 
+NAME=server
+OUTDIR=ServerCA
+
+echo $NAME
+
 ROOTCA=../RootCA
-OUTFOLDER=UserCA
 # create folder demoCA
-mkdir $OUTFOLDER
+mkdir $OUTDIR
+
+# 
+PARAM="/C=CN/ST=ZJ/L=HZ/O=MOLO/OU=IT/CN=www.jcliang.com.cn/emailAddress=lxq520064@126.com"
+PASSWD=123456
 
 # 进入目录
-cd $OUTFOLDER
-
-PASSWD=ETW@87uip
+cd $OUTDIR
 
 # generate private key
-openssl genrsa -passout pass:$PASSWD -des3 -out server.key 1024
+# -des3 
+openssl genrsa -passout pass:$PASSWD -out $NAME.key 1024
 
 # generate csr
-openssl req -passin pass:$PASSWD -passout pass:$PASSWD -subj "/C=CN/ST=ZJ/L=HZ/O=MOLO/OU=IT/CN=Rational Performance Tester CA/emailAddress=LXQ520064@126.com" -new -key server.key -out server.csr
+# openssl req -passin pass:$PASSWD -passout pass:$PASSWD -subj $PARAM -new -key $NAME.key -out $NAME.csr
+
+# generate pem
+# openssl req -passin pass:$PASSWD -passout pass:$PASSWD -subj $PARAM -new -keyout tempkey.pem -keyform PEM -out tempreq.pem -outform PEM
+openssl req -passin pass:$PASSWD -passout pass:$PASSWD -subj $PARAM -new -key $NAME.key -out tempreq.pem -outform PEM
 
 # copy openssl.cnf 文件到本地目录
+# openssl.cnf路径只适用于mac os
 OPENSSLCNF=/System/Library/OpenSSL/openssl.cnf
 cp $OPENSSLCNF .
 
 # create folder demoCA, newcerts and file index.txt, serial
 mkdir -p ./demoCA/newcerts
 touch ./demoCA/index.txt
-echo 00 > ./demoCA/serial
+echo 01 > ./demoCA/serial
 
 # generate certificate
-openssl ca -in server.csr -out server.crt -cert $ROOTCA/ca.crt -keyfile $ROOTCA/ca.key -config openssl.cnf
+# openssl ca -in $NAME.csr -out $NAME.crt -cert $ROOTCA/ca.crt -keyfile $ROOTCA/ca.key -config openssl.cnf
+# cat $NAME.crt $NAME.key > $NAME.pem
+
+# generate pem
+openssl ca -in tempreq.pem -out server.pem -cert ../RootCA/cacert.pem -keyfile ../RootCA/ca.key -config openssl.cnf
