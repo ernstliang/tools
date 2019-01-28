@@ -92,3 +92,33 @@ yum install -y git vim zsh
 安装oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 ```
+
+## 关闭防火墙及开机自启
+
+```
+systemctl stop firewalld.service
+```
+
+```
+[root@localhost ~]# systemctl disable firewalld.service 
+Removed symlink /etc/systemd/system/dbus-org.fedoraproject.FirewallD1.service.
+Removed symlink /etc/systemd/system/basic.target.wants/firewalld.service.
+```
+
+## 查看SeLinux状态
+
+```
+sestatus
+```
+
+## 临时关闭Selinux
+
+```
+setenforce 0
+```
+
+## 永久关闭SeLinux，需要重启机器
+
+```
+修改配置文件/etc/selinux/config，将SELINU置为disabled
+```
